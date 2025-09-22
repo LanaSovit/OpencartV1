@@ -1,0 +1,36 @@
+services:
+  selenium-hub:
+    image: seleniarm/hub:latest
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"   # Selenium Grid UI
+    environment:
+      - SE_GRID_MAX_SESSION=5
+
+  chrome:
+    image: seleniarm/node-chromium:latest
+    container_name: selenium-node-chrome
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    ports:
+      - "5901:7900"   # VNC для Chrome
+    volumes:
+      - /dev/shm:/dev/shm
+
+  firefox:
+    image: seleniarm/node-firefox:latest
+    container_name: selenium-node-firefox
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    ports:
+      - "5902:7900"   # VNC для Firefox
+    volumes:
+      - /dev/shm:/dev/shm
